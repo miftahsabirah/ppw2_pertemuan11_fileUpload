@@ -38,23 +38,25 @@ class ImageController extends Controller
         return redirect()->route('users')->with('success', 'Data pengguna berhasil diperbarui.');
     }
 
-    public function destroy($id){
-    // Temukan pengguna yang akan dihapus
-    $user = User::find($id);
-
-    // Hapus file foto pengguna jika ada
-    $fileToDelete = public_path('photos/' . $user->photo);
-
-    if (File::exists($fileToDelete)) {
-        File::delete($fileToDelete);
+    public function destroy($id) {
+        $user = User::find($id);
+    
+        // Hapus file foto pengguna jika ada
+        $fileToDelete = public_path('storage/' . $user->photo);
+    
+        if (File::exists($fileToDelete)) {
+            File::delete($fileToDelete);
+    
+            // Set atribut foto pengguna menjadi null atau sesuai dengan nilai default jika perlu
+            $user->photo = null;
+            $user->save();
+    
+            return redirect()->back()->with('success', 'Foto pengguna berhasil dihapus.');
+        } else {
+            return redirect()->back()->with('error', 'Foto pengguna tidak ditemukan.');
+        }
     }
-
-    // Hapus pengguna dari database
-    $user->delete();
-
-    // Tambahkan logika lainnya, seperti pengalihan setelah penghapusan
-    return redirect()->route('users')->with('success', 'Pengguna berhasil dihapus.');
-    }
+    
 
     public function resizeForm(User $user){
     return view('users.resize', compact('user'));
